@@ -97,7 +97,7 @@
 	self.chatSection = nil;
     
     // Loading new data
-    int count = 0;
+    NSInteger count = 0;
     self.chatSection = [[NSMutableArray alloc] init];
     
     if (self.chatDataSource && (count = [self.chatDataSource numberOfRowsForChatTable:self]) > 0)
@@ -172,7 +172,7 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    int result = [self.chatSection count];
+    NSInteger result = [self.chatSection count];
     if (self.typingChat != HPLChatTypingTypeNobody) result++;
     return result;
 }
@@ -185,7 +185,7 @@
     return [[self.chatSection objectAtIndex:section] count] + 1;
 }
 
-- (float)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Now typing
 	if (indexPath.section >= [self.chatSection count])
