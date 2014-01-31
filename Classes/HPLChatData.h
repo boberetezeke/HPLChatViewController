@@ -55,6 +55,12 @@ typedef enum _HPLChatMessageStatus {
 @property (nonatomic, readwrite, strong) NSString *text;
 
 /**
+ Getter & Setter for accessing the author of the ChatData.
+ */
+@property (nonatomic, readwrite, strong) NSString *authorName;
+
+
+/**
  Getter & Setter for the ChatData's delivery status
  */
 @property (readwrite, nonatomic) HPLChatMessageStatus messageStatus;
