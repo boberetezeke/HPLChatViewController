@@ -148,6 +148,8 @@
     [super reloadData];
     [self setNeedsDisplay];
 
+    self.scrollOnActivity = YES;
+    
     if(self.scrollOnActivity) {
         [self scrollToBottomAnimated:YES];
     }
