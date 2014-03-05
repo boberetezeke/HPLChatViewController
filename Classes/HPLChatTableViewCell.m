@@ -30,6 +30,7 @@
 @synthesize showAvatar = _showAvatar;
 @synthesize avatarView = _avatarView;
 @synthesize statusImage = _statusImage;
+@synthesize authorNameLabel;
 
 
 - (void)setFrame:(CGRect)frame
@@ -123,6 +124,22 @@
         bottomBorder.backgroundColor = [UIColor colorWithRed:0. green:0. blue:0. alpha:0.05].CGColor;
         [self.bubbleView.layer addSublayer:bottomBorder];
     }
+    
+    NSString *author = self.data.authorName;
+    
+        if (self.data.authorName)
+            {
+                    self.authorNameLabel.text = author;
+                    return;
+                }
+    
+        self.authorNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(5, -5, self.frame.size.width, 20)];
+        self.authorNameLabel.text = author;
+        self.authorNameLabel.font = [UIFont systemFontOfSize:12];
+        self.authorNameLabel.textAlignment = NSTextAlignmentLeft;
+        self.authorNameLabel.textColor = [UIColor darkGrayColor];
+        self.authorNameLabel.backgroundColor = [UIColor clearColor];
+        [self addSubview:self.authorNameLabel];
 
     UILongPressGestureRecognizer *recognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
     [recognizer setMinimumPressDuration:0.5];

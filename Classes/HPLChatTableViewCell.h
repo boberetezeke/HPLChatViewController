@@ -14,5 +14,6 @@
 
 @property (nonatomic, strong) HPLChatData *data;
 @property (nonatomic) BOOL showAvatar;
+@property (nonatomic, strong) UILabel *authorNameLabel;
 
 @end
