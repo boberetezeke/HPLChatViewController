@@ -97,7 +97,7 @@
 	self.chatSection = nil;
     
     // Loading new data
-    int count = 0;
+    NSInteger count = 0;
     self.chatSection = [[NSMutableArray alloc] init];
     
     if (self.chatDataSource && (count = [self.chatDataSource numberOfRowsForChatTable:self]) > 0)
@@ -148,9 +148,11 @@
     [super reloadData];
     [self setNeedsDisplay];
 
-    if(self.scrollOnActivity) {
-        [self scrollToBottomAnimated:YES];
-    }
+    //self.scrollOnActivity = YES;
+    
+    //if(self.scrollOnActivity) {
+    //    [self scrollToBottomAnimated:YES];
+    //}
 }
 
 -(void)scrollToBottomAnimated:(BOOL)animated {
@@ -166,13 +168,82 @@
     [self scrollToRowAtIndexPath:scrollTo atScrollPosition:UITableViewScrollPositionTop animated:animated];
 }
 
+- (void)appendChatRow: (HPLChatData *)chatData
+{
+    NSMutableArray *currentSection;
+    BOOL addToCurrentChat = FALSE;
+    BOOL addToCurrentSection = FALSE;
+
+
+    // Find the last section and create one if there is none
+    NSInteger numSections = [self.chatSection count];
+    if (numSections == 0) {
+        [self.chatSection addObject:[[NSMutableArray alloc] init]];
+        numSections++;
+    }
+    currentSection = [self.chatSection lastObject];
+
+    NSInteger numRowsInLastSection = [[self.chatSection lastObject] count];
+
+    NSLog(@"numRowsInLastSection = %d", numRowsInLastSection);
+
+    HPLChatData *lastChat;
+    if (numRowsInLastSection > 0) {
+        lastChat = [currentSection lastObject];
+        
+        if ([chatData.date timeIntervalSinceDate: lastChat.date] <= self.groupInterval) {
+            addToCurrentChat = TRUE;
+            addToCurrentSection = TRUE;
+            NSLog(@"add to current chat");
+        }
+        else if ([chatData.date timeIntervalSinceDate:lastChat.date] <= self.snapInterval) {
+            addToCurrentSection = TRUE;
+            NSLog(@"add to current section");
+        }
+        else {
+            NSLog(@"create new section");
+            [self.chatSection addObject:[[NSMutableArray alloc] init]];
+            currentSection = [self.chatSection lastObject];
+            numSections++;
+            numRowsInLastSection = 0;
+        }
+    }
+
+    [self beginUpdates];
+
+    if (!addToCurrentSection) {
+        NSLog(@"insertSection at section index %d", numSections-1);
+        [self insertSections: [NSIndexSet indexSetWithIndex: numSections-1] withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
+
+    if (addToCurrentChat) {
+        NSLog(@"reloading at row index %d", numRowsInLastSection);
+        NSString *newText = [NSString stringWithFormat:@"%@\n\n%@", lastChat.text, chatData.text];
+        lastChat.text = newText;
+
+        
+        [self reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:numRowsInLastSection inSection:numSections-1]] withRowAnimation: UITableViewRowAnimationNone];
+    }
+    else {
+        [currentSection addObject: chatData];
+        numRowsInLastSection++;
+
+        NSLog(@"inserting at section index %d, row index %d", numSections-1, numRowsInLastSection);
+        [self insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:numRowsInLastSection inSection:numSections-1]] withRowAnimation: UITableViewRowAnimationRight];
+    }
+
+    [self endUpdates];
+
+    [self scrollToBottomAnimated:YES];
+}
+
 #pragma mark - UITableViewDelegate implementation
 
 #pragma mark - UITableViewDataSource implementation
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    int result = [self.chatSection count];
+    NSInteger result = [self.chatSection count];
     if (self.typingChat != HPLChatTypingTypeNobody) result++;
     return result;
 }
@@ -185,7 +256,7 @@
     return [[self.chatSection objectAtIndex:section] count] + 1;
 }
 
-- (float)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Now typing
 	if (indexPath.section >= [self.chatSection count])
@@ -205,6 +276,7 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    NSLog(@"loading cell for indexPath %@", indexPath);
     // Now typing
 	if (indexPath.section >= [self.chatSection count])
     {
@@ -237,7 +309,7 @@
     static NSString *cellId = @"tblChatCell";
     HPLChatTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
     HPLChatData *data = [[self.chatSection objectAtIndex:indexPath.section] objectAtIndex:indexPath.row - 1];
-    
+    NSLog(@"data text = %@", data.text);
     if (cell == nil) cell = [[HPLChatTableViewCell alloc] init];
     
     cell.data = data;
