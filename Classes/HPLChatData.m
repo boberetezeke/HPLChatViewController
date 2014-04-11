@@ -100,15 +100,21 @@ const UIEdgeInsets textInsetsSomeone = {5, 15, 11, 10};
 
 + (UILabel*)labelForText:(NSString *)text
 {
-    UIFont *font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+    CGFloat fontSize;
+    if ([[UIDevice currentDevice].model hasPrefix:@"iPad"]) {
+        fontSize = 22.0;
+    }
+    else {
+        fontSize = [UIFont systemFontSize];
+    }
+    UIFont *font = [UIFont systemFontOfSize:fontSize];
     CGSize size = [(text ? text : @"") sizeWithFont:font constrainedToSize:CGSizeMake(220, 9999) lineBreakMode:NSLineBreakByWordWrapping];
-    
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
+    label.font = font;
     label.numberOfLines = 0;
     label.lineBreakMode = NSLineBreakByWordWrapping;
     label.text = (text ? text : @"");
-    label.font = font;
-    label.backgroundColor = [UIColor clearColor];
+        label.backgroundColor = [UIColor clearColor];
     
     return label;
 }
